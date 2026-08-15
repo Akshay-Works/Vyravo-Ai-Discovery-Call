@@ -12,12 +12,23 @@ interface QualificationResult {
   summary: string;
 }
 
+interface BookingResponse {
+  calendlyUrl: string | null;
+  integrations?: {
+    hubspot: { ok: boolean; detail?: string };
+    emailConfirmation: { ok: boolean; detail?: string };
+  };
+}
+
 type Stage = "form" | "recommendations" | "booking" | "success";
 
 export function DiscoveryCallClient() {
   const [stage, setStage] = useState<Stage>("form");
   const [formData, setFormData] = useState<LeadFormData | null>(null);
   const [qualification, setQualification] = useState<QualificationResult | null>(null);
+  const [bookingResponse, setBookingResponse] = useState<BookingResponse | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleFormComplete = (data: LeadFormData, qual: QualificationResult) => {
     setFormData(data);
@@ -28,9 +39,36 @@ export function DiscoveryCallClient() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleProceedToBooking = () => {
-    setStage("success");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleProceedToBooking = async () => {
+    if (!formData || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      // Submit the lead for real — success state is only shown after the
+      // server confirms the submission.
+      const res = await fetch("/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Something went wrong. Please try again.");
+      }
+
+      setBookingResponse({
+        calendlyUrl: json.calendlyUrl || null,
+        integrations: json.integrations,
+      });
+      setStage("success");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // Form Stage
@@ -57,7 +95,6 @@ export function DiscoveryCallClient() {
             Choose a time that works best for your free 30-minute consultation.
           </p>
           
-          {/* Calendly placeholder - In production, embed Calendly widget here */}
           <div className="rounded-xl border-2 border-dashed border-border bg-bg p-8 text-center">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -66,18 +103,25 @@ export function DiscoveryCallClient() {
             </div>
             <h4 className="font-semibold mb-2">Calendar Integration</h4>
             <p className="text-sm text-grey mb-4">
-              Connect with Calendly, Google Calendar, or Microsoft Outlook to enable self-scheduling.
+              Submit your details and pick a time with our scheduler to confirm your free discovery call.
             </p>
             <p className="text-xs text-grey-dark mb-6">
-              For now, we&apos;ll reach out within 24 hours to schedule your call.
+              Your call is only confirmed once you complete the scheduling step.
             </p>
             
             <button
               onClick={handleProceedToBooking}
-              className="btn-primary text-sm"
+              disabled={submitting}
+              className="btn-primary text-sm disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Request Call Scheduling →
+              {submitting ? "Submitting…" : "Request Call Scheduling →"}
             </button>
+
+            {submitError && (
+              <p className="mt-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">
+                {submitError}
+              </p>
+            )}
           </div>
 
           <div className="mt-6 flex items-center justify-center gap-6 text-sm text-grey">
@@ -116,6 +160,7 @@ export function DiscoveryCallClient() {
           leadEmail={formData.email}
           recommendations={qualification.recommendedServices}
           score={qualification.score}
+          calendlyUrl={bookingResponse?.calendlyUrl || null}
         />
       </div>
     );

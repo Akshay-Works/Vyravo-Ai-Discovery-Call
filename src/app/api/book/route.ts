@@ -2,6 +2,11 @@ import { db } from "@/db";
 import { leads } from "@/db/schema";
 import { qualifyLead, generateMeetingBrief } from "@/lib/discovery/scoring";
 import type { LeadFormData } from "@/lib/discovery/types";
+import { syncLeadToHubSpot } from "@/lib/integrations/hubspot";
+import { sendEmail, wrapHtmlEmail, textToHtml } from "@/lib/integrations/resend";
+import { getCalendlyEventUrl, buildCalendlyPrefillUrl } from "@/lib/integrations/calendly";
+import { getLeadReceivedEmail, getInternalLeadNotificationEmail } from "@/lib/discovery/emails";
+import { COMPANY } from "@/lib/constants";
 
 export async function POST(request: Request) {
   try {
@@ -70,6 +75,83 @@ export async function POST(request: Request) {
       source: "website",
     }).returning({ id: leads.id });
 
+    // ------------------------------------------------------------------
+    // Integrations — each is best-effort and never breaks the booking.
+    // ------------------------------------------------------------------
+    const integrationStatus: {
+      hubspot: { ok: boolean; detail?: string };
+      emailConfirmation: { ok: boolean; detail?: string };
+    } = {
+      hubspot: { ok: false },
+      emailConfirmation: { ok: false },
+    };
+
+    // 1. HubSpot: create/update contact + deal (deduped by email).
+    const dealStage = qualification.category === "hot" ? "Qualification" : "Prospecting";
+    const hubspotResult = await syncLeadToHubSpot(
+      {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        businessName: formData.businessName,
+        businessWebsite: formData.businessWebsite,
+        industry: formData.industry,
+        companySize: formData.companySize,
+        country: formData.country,
+        biggestChallenge: formData.biggestChallenge,
+        automationGoals: formData.automationGoals,
+        budgetRange: formData.budgetRange,
+        timeline: formData.timeline,
+        leadScore: qualification.score,
+        leadCategory: qualification.category,
+        source: "website",
+        qualificationSummary: qualification.summary,
+      },
+      { dealStageLabel: dealStage }
+    );
+    integrationStatus.hubspot = hubspotResult.configured
+      ? { ok: hubspotResult.ok, detail: hubspotResult.error }
+      : { ok: false, detail: "not configured" };
+
+    // 2. Resend: confirmation to the lead + internal notification.
+    const calendlyUrl = getCalendlyEventUrl();
+    const schedulingUrl = calendlyUrl
+      ? buildCalendlyPrefillUrl(calendlyUrl, formData.fullName, formData.email)
+      : null;
+
+    const confirmation = getLeadReceivedEmail({
+      name: formData.fullName,
+      recommendedServices: qualification.recommendedServices.map((s) => s.service),
+      schedulingUrl,
+    });
+    const leadEmailResult = await sendEmail({
+      to: formData.email,
+      subject: confirmation.subject,
+      html: wrapHtmlEmail("Thanks for reaching out — you're one step closer to automation", textToHtml(confirmation.body)),
+      text: confirmation.body,
+    });
+    integrationStatus.emailConfirmation = leadEmailResult.configured
+      ? { ok: leadEmailResult.ok, detail: leadEmailResult.error }
+      : { ok: false, detail: "not configured" };
+
+    // Internal notification (to the business owner), if Resend is configured.
+    const internalEmail = getInternalLeadNotificationEmail({
+      leadName: formData.fullName,
+      email: formData.email,
+      businessName: formData.businessName,
+      industry: formData.industry,
+      leadScore: qualification.score,
+      leadCategory: qualification.category,
+      recommendedServices: qualification.recommendedServices.map((s) => s.service),
+      summary: qualification.summary,
+    });
+    await sendEmail({
+      to: COMPANY.email,
+      subject: internalEmail.subject,
+      html: wrapHtmlEmail("New lead received", textToHtml(internalEmail.body)),
+      text: internalEmail.body,
+    });
+
     return Response.json({
       success: true,
       message: "Thank you! We'll schedule your discovery call shortly.",
@@ -82,6 +164,9 @@ export async function POST(request: Request) {
         summary: qualification.summary,
       },
       meetingBrief,
+      // Calendly scheduling link (from CALENDLY_EVENT_URL) — null if not configured.
+      calendlyUrl: schedulingUrl,
+      integrations: integrationStatus,
     });
   } catch (error) {
     console.error("Booking API error:", error);

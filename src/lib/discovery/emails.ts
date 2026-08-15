@@ -346,3 +346,73 @@ ${data.summary}
 View full lead details in the dashboard.`,
   };
 }
+
+export function getLeadReceivedEmail(data: {
+  name: string;
+  recommendedServices: string[];
+  schedulingUrl?: string | null;
+}): EmailTemplate {
+  const firstName = data.name.split(" ")[0];
+  const servicesText = data.recommendedServices.length > 0
+    ? data.recommendedServices.map(s => `• ${s}`).join("\n")
+    : "• A tailored AI automation strategy";
+  const schedulingBlock = data.schedulingUrl
+    ? `\n\n**Next step — confirm your call time:**\n${data.schedulingUrl}\n\nYour discovery call is confirmed once you pick a time using the link above.`
+    : `\n\nOur team will reach out within 24 hours to schedule your free discovery call.`;
+
+  return {
+    subject: `We received your request, ${firstName} — here's what happens next`,
+    body: `Hi ${firstName},
+
+Thank you for reaching out to Vyravo AI! We've received your details and our team is already reviewing them.
+
+**Based on your answers, these solutions look like a great fit:**
+${servicesText}
+${schedulingBlock}
+
+**What to expect:**
+1. We review your profile and prepare personalized recommendations.
+2. A 30-minute discovery call to discuss your goals and challenges.
+3. Within 48 hours of the call, you'll receive a tailored proposal.
+
+If you have any questions in the meantime, just reply to this email.
+
+Talk soon,
+The Vyravo AI Team`,
+  };
+}
+
+export function getInternalLeadNotificationEmail(data: {
+  leadName: string;
+  email: string;
+  businessName?: string;
+  industry?: string;
+  leadScore: number;
+  leadCategory: string;
+  recommendedServices: string[];
+  summary?: string;
+}): EmailTemplate {
+  const servicesText = data.recommendedServices.length > 0
+    ? data.recommendedServices.map(s => `• ${s}`).join("\n")
+    : "• (none generated yet)";
+
+  return {
+    subject: `🆕 New Lead: ${data.leadName} (${data.leadCategory.toUpperCase()} — score ${data.leadScore})`,
+    body: `**New lead submitted via the Discovery Call page**
+
+**Lead Details:**
+• Name: ${data.leadName}
+• Email: ${data.email}
+• Business: ${data.businessName || "—"}
+• Industry: ${data.industry || "—"}
+
+**AI Qualification:**
+• Score: ${data.leadScore} (${data.leadCategory})
+${data.summary ? `• Summary: ${data.summary}` : ""}
+
+**Recommended Services:**
+${servicesText}
+
+Review this lead in the CRM and follow up promptly.`,
+  };
+}

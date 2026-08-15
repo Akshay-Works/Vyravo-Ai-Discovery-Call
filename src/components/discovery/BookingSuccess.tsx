@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import type { ServiceRecommendation } from "@/lib/discovery/types";
-import { COMPANY } from "@/lib/constants";
+import { COMPANY, SITE_LINKS } from "@/lib/constants";
 
 interface BookingSuccessProps {
   leadName: string;
   leadEmail: string;
   recommendations: ServiceRecommendation[];
   score: number;
+  calendlyUrl?: string | null;
 }
 
-export function BookingSuccess({ leadName, leadEmail, recommendations, score }: BookingSuccessProps) {
+export function BookingSuccess({ leadName, leadEmail, recommendations, score, calendlyUrl }: BookingSuccessProps) {
   return (
     <div className="max-w-2xl mx-auto text-center">
       {/* Success Icon */}
@@ -26,8 +27,42 @@ export function BookingSuccess({ leadName, leadEmail, recommendations, score }: 
       </h1>
       
       <p className="text-grey text-lg mb-8">
-        Your information has been submitted successfully. We&apos;ll reach out within 24 hours to schedule your discovery call.
+        Your information has been submitted successfully.
+        {calendlyUrl
+          ? " Now pick a time below to confirm your discovery call."
+          : " We'll reach out within 24 hours to schedule your discovery call."}
       </p>
+
+      {/* Calendly Scheduling — the call is not confirmed until a time is picked */}
+      {calendlyUrl && (
+        <div className="rounded-2xl border border-primary/30 bg-gradient-to-b from-primary/5 to-surface p-6 md:p-8 text-left mb-8">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+              <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold font-[var(--font-heading)] mb-1">
+                One more step: confirm your call time
+              </h2>
+              <p className="text-sm text-grey mb-4">
+                Choose any slot that suits you on our calendar. Your discovery call is
+                confirmed as soon as you complete the scheduling — you&apos;ll receive a
+                calendar invite immediately.
+              </p>
+              <a
+                href={calendlyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary text-sm inline-flex"
+              >
+                Pick a Time for My Call →
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* What's Next */}
       <div className="rounded-2xl border border-border bg-surface p-6 md:p-8 text-left mb-8">
@@ -128,9 +163,14 @@ export function BookingSuccess({ leadName, leadEmail, recommendations, score }: 
         <Link href="/" className="btn-secondary text-sm">
           Return Home
         </Link>
-        <Link href="/services" className="btn-primary text-sm">
+        <a
+          href={`${SITE_LINKS.mainSite}/services`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary text-sm"
+        >
           Explore Our Services
-        </Link>
+        </a>
       </div>
     </div>
   );
