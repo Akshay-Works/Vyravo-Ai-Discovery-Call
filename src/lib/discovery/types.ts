@@ -126,12 +126,12 @@ export const COMPANY_SIZES = [
 ];
 
 export const BUDGET_RANGES = [
-  { value: "under_2500", label: "Under $2,500" },
-  { value: "2500_5000", label: "$2,500 - $5,000" },
-  { value: "5000_10000", label: "$5,000 - $10,000" },
-  { value: "10000_25000", label: "$10,000 - $25,000" },
-  { value: "25000_50000", label: "$25,000 - $50,000" },
-  { value: "50000+", label: "$50,000+" },
+  { value: "under_2500", label: "Under 2.5k" },
+  { value: "2500_5000", label: "2.5k - 5k" },
+  { value: "5000_10000", label: "5k - 10k" },
+  { value: "10000_25000", label: "10k - 25k" },
+  { value: "25000_50000", label: "25k - 50k" },
+  { value: "50000+", label: "50k+" },
   { value: "not_sure", label: "Not sure yet" },
 ];
 

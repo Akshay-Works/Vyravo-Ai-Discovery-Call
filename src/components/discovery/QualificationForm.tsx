@@ -364,7 +364,7 @@ export function QualificationForm({ onComplete }: QualificationFormProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Budget Range *</label>
+                <label className="block text-sm font-medium mb-2">Budget Range (USD) *</label>
                 <select
                   value={formData.budgetRange}
                   onChange={(e) => updateField("budgetRange", e.target.value)}
