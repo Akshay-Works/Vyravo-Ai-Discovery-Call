@@ -126,12 +126,12 @@ export const COMPANY_SIZES = [
 ];
 
 export const BUDGET_RANGES = [
-  { value: "under_2500", label: "Under $2.5k / ₹25k - ₹1L" },
-  { value: "2500_5000", label: "$2.5k - $5k / ₹1L - ₹2.5L" },
-  { value: "5000_10000", label: "$5k - $10k / ₹2.5L - ₹5L" },
-  { value: "10000_25000", label: "$10k - $25k / ₹5L - ₹10L" },
-  { value: "25000_50000", label: "$25k - $50k / ₹10L - ₹25L" },
-  { value: "50000+", label: "$50k+ / ₹25L+" },
+  { value: "under_2500", label: "Under $2.5k / Under ₹25k" },
+  { value: "2500_5000", label: "$2.5k - $5k / ₹25k - ₹50k" },
+  { value: "5000_10000", label: "$5k - $10k / ₹50k - ₹1L" },
+  { value: "10000_25000", label: "$10k - $25k / ₹1L - ₹2.5L" },
+  { value: "25000_50000", label: "$25k - $50k / ₹2.5L - ₹5L" },
+  { value: "50000+", label: "$50k+ / ₹5L+" },
   { value: "not_sure", label: "Not sure yet" },
 ];
 
