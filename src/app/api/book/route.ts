@@ -168,10 +168,16 @@ export async function POST(request: Request) {
       calendlyUrl: schedulingUrl,
       integrations: integrationStatus,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Booking API error:", error);
+    const msg = error?.message || String(error || "Unknown error");
+    // Return a generic message to the user, but log the real error.
+    // If it's a known third-party integration failure, give a more helpful hint.
+    const userMsg = msg.includes("HubSpot") || msg.includes("Resend") || msg.includes("email")
+      ? "We received your request but couldn't send the confirmation email. The Vyravo AI team will follow up with you directly."
+      : "Something went wrong. Please try again.";
     return Response.json(
-      { error: "Something went wrong. Please try again." },
+      { error: userMsg, _debug: process.env.NODE_ENV === "development" ? msg : undefined },
       { status: 500 }
     );
   }
