@@ -124,25 +124,32 @@ export default function BookDiscoveryCallPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      
+    </main>
+  );
+}
+
+      {/* Why Vyravo AI */}
       <section className="section-padding bg-surface border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl md:text-3xl font-semibold font-[var(--font-heading)] text-center mb-10">
-            _REPLACED_
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl md:text-3xl font-semibold font-[var(--font-heading)] mb-4">
+            Why Businesses Choose Vyravo AI
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">).map((_, i) => (
-                    <svg key={i} className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-sm text-grey leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-semibold">{t.name[0]}</div>
-                  <div>
-                    <p className="text-sm font-medium text-white">{t.name}</p>
-                    <p className="text-xs text-grey">{t.role}</p>
-                  </div>
+          <p className="text-sm text-grey max-w-2xl mx-auto">
+            We build custom AI automation systems that eliminate repetitive work, reduce costs, and help modern businesses scale. Every solution is tailored to your specific workflows with transparent pricing and dedicated support.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-8">
+            {[
+              { icon: "\u26a1", value: "Custom-built", label: "Tailored to your specific workflows" },
+              { icon: "\ud83c\udfaf", value: "Measurable ROI", label: "Clear KPIs tracked from day one" },
+              { icon: "\ud83d\udd12", value: "Enterprise security", label: "Encryption, access controls & compliance" },
+              { icon: "\ud83e\udd1d", value: "Dedicated support", label: "Direct access to your development team" },
+            ].map((item) => (
+              <div key={item.label} className="flex items-center gap-3 text-left">
+                <span className="text-2xl shrink-0">{item.icon}</span>
+                <div>
+                  <p className="text-sm font-semibold text-white">{item.value}</p>
+                  <p className="text-xs text-grey">{item.label}</p>
                 </div>
               </div>
             ))}
@@ -150,50 +157,3 @@ export default function BookDiscoveryCallPage() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="section-padding">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl md:text-3xl font-semibold font-[var(--font-heading)] text-center mb-10">
-            Common Questions
-          </h2>
-          <div className="space-y-4">
-            {[
-              {
-                q: "Is this really free?",
-                a: "Yes, 100% free with zero obligation. The discovery call is our way of understanding your needs before proposing any solution.",
-              },
-              {
-                q: "How long is the call?",
-                a: "30 minutes. That's enough time to understand your challenges, discuss solutions, and outline next steps.",
-              },
-              {
-                q: "What should I prepare?",
-                a: "Just complete the form honestly. Think about your biggest operational pain points and what outcomes you're hoping to achieve.",
-              },
-              {
-                q: "Who will I be speaking with?",
-                a: "You'll speak directly with an AI automation expert who can discuss strategy, technical feasibility, and implementation.",
-              },
-              {
-                q: "What happens after the call?",
-                a: "Within 48 hours, you'll receive a detailed proposal with our recommended solution, timeline, and investment breakdown.",
-              },
-            ].map((faq, i) => (
-              <details key={i} className="group rounded-xl border border-border bg-surface">
-                <summary className="flex items-center justify-between px-5 py-4 cursor-pointer list-none">
-                  <span className="text-sm font-medium pr-4">{faq.q}</span>
-                  <svg className="w-5 h-5 text-grey group-open:rotate-180 transition-transform shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </summary>
-                <div className="px-5 pb-4">
-                  <p className="text-sm text-grey leading-relaxed">{faq.a}</p>
-                </div>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-    </main>
-  );
-}
